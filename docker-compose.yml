@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16.1
+    container_name: calcdb
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=calcdb
+      - POSTGRES_DB=calcdb
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+  calcapp:
+    build: ./
+    image: calcapp-calcapp
+    container_name: calcapp
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/calcdb
+      - SPRING_DATASOURCE_USERNAME=calcdb
+      - SPRING_DATASOURCE_PASSWORD=admin
